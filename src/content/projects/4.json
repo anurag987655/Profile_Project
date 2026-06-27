@@ -1,0 +1,9 @@
+{
+  "title": "Distributed Key-Value Store",
+  "description": "A strongly-consistent, partition-tolerant key-value store built on the Raft consensus protocol in Go.",
+  "tech": ["Go", "Raft", "gRPC"],
+  "icon": "🗄️",
+  "links": { "demo": "https://github.com" },
+  "wide": false,
+  "tall": false
+}

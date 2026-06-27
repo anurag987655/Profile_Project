@@ -1,0 +1,9 @@
+{
+  "title": "Cypher Compiler",
+  "description": "A native compiler for a small systems language featuring hand-written lexer, recursive-descent parser, TAC IR, and x86-64 code generation.",
+  "tech": ["C++", "LLVM", "x86-64"],
+  "icon": "⚙️",
+  "links": { "demo": "https://github.com", "paper": "https://arxiv.org" },
+  "wide": true,
+  "tall": false
+}

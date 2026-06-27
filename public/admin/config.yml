@@ -1,0 +1,94 @@
+backend:
+  name: git-gateway
+  branch: main
+
+# Local development backend (uncomment for local dev without Netlify)
+# local_backend: true
+
+# Media files are stored in the repo under public/assets
+# PDFs use Cloudinary instead (configured in media_library below)
+media_folder: public/assets
+public_folder: /assets
+
+collections:
+  - name: notes
+    label: Notes
+    label_singular: Note
+    folder: src/content/notes
+    create: true
+    delete: true
+    identifier_field: title
+    format: json
+    fields:
+      - label: Title
+        name: title
+        widget: string
+      - label: Description
+        name: description
+        widget: text
+      - label: PDF URL
+        name: pdfUrl
+        widget: string
+      - label: Badge / Tag
+        name: badge
+        widget: string
+        required: false
+
+  - name: articles
+    label: Articles
+    label_singular: Article
+    folder: src/articles
+    create: true
+    delete: true
+    identifier_field: title
+    format: frontmatter
+    fields:
+      - label: Title
+        name: title
+        widget: string
+      - label: Publish Date
+        name: date
+        widget: datetime
+      - label: Tag
+        name: tag
+        widget: string
+      - label: Excerpt
+        name: excerpt
+        widget: text
+      - label: Body
+        name: body
+        widget: markdown
+
+  - name: projects
+    label: Projects
+    label_singular: Project
+    folder: src/content/projects
+    create: true
+    delete: true
+    identifier_field: title
+    format: json
+    fields:
+      - label: Title
+        name: title
+        widget: string
+      - label: Description
+        name: description
+        widget: text
+      - label: Image
+        name: image
+        widget: image
+        required: false
+      - label: Demo URL
+        name: demo_url
+        widget: string
+        required: false
+      - label: Repo / Paper URL
+        name: repo_url
+        widget: string
+        required: false
+
+media_library:
+  name: cloudinary
+  config:
+    cloud_name: YOUR_CLOUD_NAME
+    api_key: YOUR_API_KEY

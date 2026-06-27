@@ -1,0 +1,9 @@
+{
+  "title": "Quantum Circuit Simulator",
+  "description": "A fast simulator for quantum circuits using tensor-network contraction, supporting up to 30 qubits on a single GPU.",
+  "tech": ["Rust", "CUDA", "Python"],
+  "icon": "🔬",
+  "links": { "paper": "https://arxiv.org" },
+  "wide": false,
+  "tall": false
+}

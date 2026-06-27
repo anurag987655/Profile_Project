@@ -1,0 +1,9 @@
+{
+  "title": "RLHF Alignment Toolkit",
+  "description": "An open-source library for fine-tuning LLMs with reinforcement learning from human feedback, supporting PPO and DPO.",
+  "tech": ["Python", "PyTorch", "TRL"],
+  "icon": "🤖",
+  "links": { "demo": "https://github.com", "paper": "https://arxiv.org" },
+  "wide": true,
+  "tall": false
+}

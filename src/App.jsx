@@ -7,157 +7,62 @@ import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
 import './App.css'
 
-const mdModules = import.meta.glob('./articles/*.md', {
+const articleModules = import.meta.glob('/src/articles/*.md', { eager: true, query: '?raw' })
+
+const articles = Object.entries(articleModules).map(([path, module]) => {
+  const rawContent = module.default || ''
+
+  const match = rawContent.match(/^---\r?\n([\s\S]*?)\r?\n---\r?\n([\s\S]*)$/)
+  const frontmatterRaw = match ? match[1] : ''
+  const body = match ? match[2] : rawContent
+
+  const metadata = {}
+  frontmatterRaw.split('\n').forEach(line => {
+    const parts = line.split(':')
+    if (parts.length >= 2) {
+      const key = parts[0].trim()
+      const value = parts.slice(1).join(':').trim().replace(/^["']|["']$/g, '')
+      metadata[key] = value
+    }
+  })
+
+  const slug = path.split('/').pop().replace('.md', '')
+
+  return {
+    slug,
+    id: Number(slug) || 0,
+    title: metadata.title || 'Untitled Article',
+    date: metadata.date || '',
+    tag: metadata.tag || 'General',
+    excerpt: metadata.excerpt || '',
+    body: body.trim(),
+    mdFile: path,
+  }
+}).sort((a, b) => a.id - b.id)
+
+const noteModules = import.meta.glob('./content/notes/*.json', {
   eager: true,
-  query: '?raw',
   import: 'default',
 })
 
-const NOTES = [
-  {
-    id: 1,
-    title: 'Linear Algebra — Eigenvectors',
-    description: 'Handwritten notes covering eigenvalues, eigenvectors, and diagonalisation with worked examples.',
-    driveFileId: '1abcExampleFileId123',
-    badge: 'Mathematics',
-  },
-  {
-    id: 2,
-    title: 'Quantum Mechanics — Spin',
-    description: 'A deep dive into Pauli matrices, spin operators, and the Stern–Gerlach experiment.',
-    driveFileId: '2abcExampleFileId456',
-    badge: 'Physics',
-  },
-  {
-    id: 3,
-    title: 'ML — Backpropagation',
-    description: 'Step-by-step derivation of the backpropagation algorithm through a simple feed-forward network.',
-    driveFileId: '3abcExampleFileId789',
-    badge: 'Machine Learning',
-  },
-  {
-    id: 4,
-    title: 'Computer Networks — TCP/IP',
-    description: 'Detailed notes on the TCP/IP protocol stack, flow control, and congestion avoidance.',
-    driveFileId: '4abcExampleFileId012',
-    badge: 'Networking',
-  },
-  {
-    id: 5,
-    title: 'Algorithms — Dynamic Programming',
-    description: 'Classic DP problems: LCS, knapsack, matrix chain multiplication, and optimal BST.',
-    driveFileId: '5abcExampleFileId345',
-    badge: 'Algorithms',
-  },
-]
+const projectModules = import.meta.glob('./content/projects/*.json', {
+  eager: true,
+  import: 'default',
+})
 
-const ARTICLES = [
-  {
-    id: 1,
-    title: 'Why Functional Programming Matters',
-    date: 'March 15, 2026',
-    tag: 'Programming',
-    excerpt:
-      'An exploration of how pure functions, immutability, and higher-order abstractions lead to more composable and testable systems.',
-    mdFile: './articles/1.md',
-  },
-  {
-    id: 2,
-    title: 'A Primer on Quantum Error Correction',
-    date: 'February 28, 2026',
-    tag: 'Physics',
-    excerpt:
-      'How Shor and Steane codes protect fragile qubits from decoherence, and why error correction is the linchpin of scalable quantum computers.',
-    mdFile: './articles/2.md',
-  },
-  {
-    id: 3,
-    title: 'Building a Compiler in 2026',
-    date: 'January 10, 2026',
-    tag: 'Engineering',
-    excerpt:
-      'Lessons from writing a native compiler for a small systems language: lexing, parsing, IR generation, and codegen for x86-64.',
-    mdFile: './articles/3.md',
-  },
-  {
-    id: 4,
-    title: 'Reinforcement Learning from Human Feedback',
-    date: 'December 5, 2025',
-    tag: 'AI',
-    excerpt:
-      'A technical walkthrough of RLHF: supervised fine-tuning, reward model training, and PPO alignment for large language models.',
-    mdFile: './articles/4.md',
-  },
-]
+const notes = Object.entries(noteModules)
+  .map(([path, data]) => ({
+    ...data,
+    id: Number(path.match(/(\d+)\.json$/)?.[1] || 0),
+  }))
+  .sort((a, b) => a.id - b.id)
 
-const PROJECTS = [
-  {
-    id: 1,
-    title: 'Cypher Compiler',
-    description:
-      'A native compiler for a small systems language featuring hand-written lexer, recursive-descent parser, TAC IR, and x86-64 code generation.',
-    tech: ['C++', 'LLVM', 'x86-64'],
-    icon: '⚙️',
-    links: { demo: 'https://github.com', paper: 'https://arxiv.org' },
-    wide: true,
-    tall: false,
-  },
-  {
-    id: 2,
-    title: 'Neural Style Transfer',
-    description:
-      'PyTorch implementation of real-time neural style transfer using perceptual losses and instance normalisation.',
-    tech: ['Python', 'PyTorch', 'ONNX'],
-    icon: '🎨',
-    links: { demo: 'https://github.com' },
-    wide: false,
-    tall: true,
-  },
-  {
-    id: 3,
-    title: 'Quantum Circuit Simulator',
-    description:
-      'A fast simulator for quantum circuits using tensor-network contraction, supporting up to 30 qubits on a single GPU.',
-    tech: ['Rust', 'CUDA', 'Python'],
-    icon: '🔬',
-    links: { paper: 'https://arxiv.org' },
-    wide: false,
-    tall: false,
-  },
-  {
-    id: 4,
-    title: 'Distributed Key-Value Store',
-    description:
-      'A strongly-consistent, partition-tolerant key-value store built on the Raft consensus protocol in Go.',
-    tech: ['Go', 'Raft', 'gRPC'],
-    icon: '🗄️',
-    links: { demo: 'https://github.com' },
-    wide: false,
-    tall: false,
-  },
-  {
-    id: 5,
-    title: 'RLHF Alignment Toolkit',
-    description:
-      'An open-source library for fine-tuning LLMs with reinforcement learning from human feedback, supporting PPO and DPO.',
-    tech: ['Python', 'PyTorch', 'TRL'],
-    icon: '🤖',
-    links: { demo: 'https://github.com', paper: 'https://arxiv.org' },
-    wide: true,
-    tall: false,
-  },
-  {
-    id: 6,
-    title: 'Formal Verification of Smart Contracts',
-    description:
-      'A framework using symbolic execution and SMT solvers to prove safety properties of Solidity smart contracts.',
-    tech: ['Solidity', 'Z3', 'Python'],
-    icon: '📜',
-    links: { paper: 'https://eprint.iacr.org' },
-    wide: false,
-    tall: false,
-  },
-]
+const projects = Object.entries(projectModules)
+  .map(([path, data]) => ({
+    ...data,
+    id: Number(path.match(/(\d+)\.json$/)?.[1] || 0),
+  }))
+  .sort((a, b) => a.id - b.id)
 
 function Navbar({ activeSection }) {
   const location = useLocation()
@@ -229,7 +134,9 @@ function PdfModal({ note, onClose }) {
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
-  const embedUrl = `https://drive.google.com/file/d/${note.driveFileId}/preview`
+  const embedUrl = note.pdfUrl.startsWith('http')
+    ? note.pdfUrl
+    : `https://drive.google.com/file/d/${note.pdfUrl}/preview`
 
   return (
     <div className="modal-overlay" onClick={onClose}>
@@ -392,7 +299,7 @@ function HomePage() {
             <div className="about-links">
               <a
                 className="icon-link"
-                href="https://youtube.com"
+                href="https://www.youtube.com/@doyexplains"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="YouTube"
@@ -403,7 +310,7 @@ function HomePage() {
               </a>
               <a
                 className="icon-link"
-                href="https://linkedin.com"
+                href="https://www.linkedin.com/in/ashutosh-acharya-985746257/"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="LinkedIn"
@@ -423,7 +330,9 @@ function HomePage() {
           </div>
           <div className="about-visual">
             <div className="avatar-frame">
-              <div className="avatar-inner">Appeale</div>
+              <div className="avatar-inner">
+                <img src="/src/assets/profile.jpeg" alt="Profile" className="avatar-img" />
+              </div>
             </div>
           </div>
         </div>
@@ -440,7 +349,7 @@ function HomePage() {
         <div className="section-content">
           <div className="vault-scroll">
             <div className="vault-track">
-              {NOTES.map((note) => (
+              {notes.map((note) => (
                 <NoteCard key={note.id} note={note} onSelect={setSelectedPdf} />
               ))}
             </div>
@@ -458,7 +367,7 @@ function HomePage() {
         </div>
         <div className="section-content">
           <div className="articles-grid">
-            {ARTICLES.map((a) => (
+            {articles.map((a) => (
               <ArticleCard key={a.id} article={a} />
             ))}
           </div>
@@ -475,7 +384,7 @@ function HomePage() {
         </div>
         <div className="section-content">
           <div className="bento-grid">
-            {PROJECTS.map((p) => (
+            {projects.map((p) => (
               <BentoItem key={p.id} project={p} />
             ))}
           </div>
@@ -495,8 +404,7 @@ function HomePage() {
 
 function ArticlePage() {
   const { id } = useParams()
-  const article = ARTICLES.find(a => a.id === Number(id))
-  const mdContent = article ? mdModules[article.mdFile] : null
+  const article = articles.find(a => a.id === Number(id))
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -526,8 +434,8 @@ function ArticlePage() {
             </div>
           </header>
           <div className="reader-body">
-            {mdContent ? (
-              <MarkdownRenderer content={mdContent} />
+            {article.body ? (
+              <MarkdownRenderer content={article.body} />
             ) : (
               <p className="md-fallback">
                 Place your <code>.md</code> file at <code>{article.mdFile}</code> to see the full article rendered here.

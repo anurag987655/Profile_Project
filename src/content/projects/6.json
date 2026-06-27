@@ -1,0 +1,9 @@
+{
+  "title": "Formal Verification of Smart Contracts",
+  "description": "A framework using symbolic execution and SMT solvers to prove safety properties of Solidity smart contracts.",
+  "tech": ["Solidity", "Z3", "Python"],
+  "icon": "📜",
+  "links": { "paper": "https://eprint.iacr.org" },
+  "wide": false,
+  "tall": false
+}

@@ -1,0 +1,9 @@
+{
+  "title": "Neural Style Transfer",
+  "description": "PyTorch implementation of real-time neural style transfer using perceptual losses and instance normalisation.",
+  "tech": ["Python", "PyTorch", "ONNX"],
+  "icon": "🎨",
+  "links": { "demo": "https://github.com" },
+  "wide": false,
+  "tall": true
+}
