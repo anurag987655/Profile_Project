@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { Routes, Route, Link, useParams, useLocation } from 'react-router-dom'
 import Markdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
@@ -68,6 +68,7 @@ function Navbar({ activeSection }) {
   const location = useLocation()
   const [scrolled, setScrolled] = useState(false)
   const isArticlePage = location.pathname.startsWith('/article')
+  const isNotePage = location.pathname.startsWith('/note')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -81,6 +82,17 @@ function Navbar({ activeSection }) {
     { label: 'Articles', href: '#articles' },
     { label: 'Projects', href: '#projects' },
   ]
+
+  if (isNotePage) {
+    return (
+      <nav className={`navbar${scrolled ? ' scrolled' : ''}`}>
+        <div className="nav-inner">
+          <span className="nav-logo">Appeale</span>
+          <Link to="/#vault" className="nav-back">← Vault</Link>
+        </div>
+      </nav>
+    )
+  }
 
   if (isArticlePage) {
     return (
@@ -114,51 +126,20 @@ function Navbar({ activeSection }) {
   )
 }
 
-function NoteCard({ note, onSelect }) {
+function NoteCard({ note }) {
   return (
-    <div className="note-card" onClick={() => onSelect(note)} role="button" tabIndex={0}>
+    <Link to={`/note/${note.id}`} className="note-card">
       <div className="note-thumb">
         <span>📄</span>
       </div>
       <h3>{note.title}</h3>
       <p>{note.description}</p>
       <span className="note-badge">{note.badge}</span>
-    </div>
+    </Link>
   )
 }
 
-function PdfModal({ note, onClose }) {
-  useEffect(() => {
-    const handler = (e) => { if (e.key === 'Escape') onClose() }
-    window.addEventListener('keydown', handler)
-    return () => window.removeEventListener('keydown', handler)
-  }, [onClose])
 
-  const embedUrl = note.pdfUrl.startsWith('http')
-    ? note.pdfUrl
-    : `https://drive.google.com/file/d/${note.pdfUrl}/preview`
-
-  return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h3>{note.title}</h3>
-          <button className="modal-close" onClick={onClose}>
-            ✕
-          </button>
-        </div>
-        <div className="modal-body">
-          <iframe
-            src={embedUrl}
-            title={note.title}
-            allow="autoplay"
-            loading="lazy"
-          />
-        </div>
-      </div>
-    </div>
-  )
-}
 
 function ArticleCard({ article }) {
   return (
@@ -245,7 +226,6 @@ function MarkdownRenderer({ content }) {
 }
 
 function HomePage() {
-  const [selectedPdf, setSelectedPdf] = useState(null)
   const [activeSection, setActiveSection] = useState('about')
 
   useEffect(() => {
@@ -278,8 +258,6 @@ function HomePage() {
       }
     }
   }, [])
-
-  const closePdf = useCallback(() => setSelectedPdf(null), [])
 
   return (
     <>
@@ -350,7 +328,7 @@ function HomePage() {
           <div className="vault-scroll">
             <div className="vault-track">
               {notes.map((note) => (
-                <NoteCard key={note.id} note={note} onSelect={setSelectedPdf} />
+                <NoteCard key={note.id} note={note} />
               ))}
             </div>
           </div>
@@ -396,8 +374,6 @@ function HomePage() {
           Crafted with <span>React</span> &middot; &copy; {new Date().getFullYear()} Appeale
         </p>
       </footer>
-
-      {selectedPdf && <PdfModal note={selectedPdf} onClose={closePdf} />}
     </>
   )
 }
@@ -448,11 +424,58 @@ function ArticlePage() {
   )
 }
 
+function NotePage() {
+  const { id } = useParams()
+  const note = notes.find(n => n.id === Number(id))
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [id])
+
+  if (!note) {
+    return (
+      <>
+        <Navbar />
+        <div className="note-page">
+          <p>Note not found.</p>
+        </div>
+      </>
+    )
+  }
+
+  const embedUrl = note.pdfUrl.startsWith('http')
+    ? note.pdfUrl
+    : `https://drive.google.com/file/d/${note.pdfUrl}/preview`
+
+  return (
+    <>
+      <Navbar />
+      <div className="note-page">
+        <div className="note-page-header">
+          <h1>{note.title}</h1>
+          <div className="note-page-meta">
+            <span className="note-badge">{note.badge}</span>
+          </div>
+        </div>
+        <div className="note-page-body">
+          <iframe
+            src={embedUrl}
+            title={note.title}
+            allow="autoplay"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </>
+  )
+}
+
 export default function App() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/article/:id" element={<ArticlePage />} />
+      <Route path="/note/:id" element={<NotePage />} />
     </Routes>
   )
 }

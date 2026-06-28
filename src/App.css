@@ -561,6 +561,51 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* -- Note Page (Full-Page PDF Viewer) -- */
+.note-page {
+  padding-top: 5rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.note-page-header {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 2rem 1.5rem 1rem;
+  width: 100%;
+}
+
+.note-page-header h1 {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 700;
+  color: var(--ink-primary);
+  margin-bottom: 0.5rem;
+}
+
+.note-page-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.note-page-body {
+  flex: 1;
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.5rem 2rem;
+  width: 100%;
+}
+
+.note-page-body iframe {
+  width: 100%;
+  height: calc(100vh - 12rem);
+  border: var(--border-ink);
+  border-radius: var(--radius-lg);
+  background: var(--bg-card);
+}
+
 /* -- Article Page (Full-Page View) -- */
 .article-page {
   padding-top: 5rem;
