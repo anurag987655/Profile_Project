@@ -5,6 +5,7 @@ import remarkGfm from 'remark-gfm'
 import remarkMath from 'remark-math'
 import rehypeKatex from 'rehype-katex'
 import 'katex/dist/katex.min.css'
+import profileImg from './assets/profile.jpeg'
 import './App.css'
 
 const articleModules = import.meta.glob('/src/articles/*.md', { eager: true, query: '?raw' })
@@ -309,7 +310,7 @@ function HomePage() {
           <div className="about-visual">
             <div className="avatar-frame">
               <div className="avatar-inner">
-                <img src="/src/assets/profile.jpeg" alt="Profile" className="avatar-img" />
+                <img src={profileImg} alt="Profile" className="avatar-img" />
               </div>
             </div>
           </div>
