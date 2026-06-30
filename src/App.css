@@ -585,6 +585,28 @@
   background-position: center;
 }
 
+.course-card--fallback {
+  align-items: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  background: var(--bg-card);
+}
+
+.course-card--fallback .course-icon {
+  font-size: 2rem;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.course-card--fallback .course-overlay {
+  background: linear-gradient(
+    to top,
+    rgba(44, 24, 16, 0.7) 0%,
+    rgba(44, 24, 16, 0.2) 100%
+  );
+}
+
 .course-card:hover {
   transform: translateY(-4px);
   box-shadow: var(--shadow-ink-hover);

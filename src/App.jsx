@@ -175,17 +175,29 @@ function getYoutubeThumb(url) {
 }
 
 function CourseCard({ course }) {
-  const thumb = getYoutubeThumb(course.url)
+  const directThumb = getYoutubeThumb(course.url)
+  const [fetchedThumb, setFetchedThumb] = useState(null)
+
+  useEffect(() => {
+    if (directThumb) return
+    fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(course.url)}&format=json`)
+      .then(r => r.json())
+      .then(data => { if (data.thumbnail_url) setFetchedThumb(data.thumbnail_url) })
+      .catch(() => {})
+  }, [course.url, directThumb])
+
+  const thumb = directThumb || fetchedThumb
 
   return (
     <a
       href={course.url}
       target="_blank"
       rel="noopener noreferrer"
-      className="course-card"
+      className={`course-card${thumb ? '' : ' course-card--fallback'}`}
       style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}
     >
       <span className="course-overlay" />
+      {!thumb && <span className="course-icon">📺</span>}
       <h3>{course.title}</h3>
     </a>
   )
