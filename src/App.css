@@ -561,6 +561,68 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* -- Courses Grid (Square Cards with Thumbnails) -- */
+.courses-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.course-card {
+  aspect-ratio: 1;
+  border-radius: var(--radius-lg);
+  border: var(--border-ink);
+  cursor: pointer;
+  transition: all var(--transition);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg-card);
+  background-size: cover;
+  background-position: center;
+}
+
+.course-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-ink-hover);
+  border-color: rgba(44, 24, 16, 0.18);
+}
+
+.course-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(44, 24, 16, 0.85) 0%,
+    rgba(44, 24, 16, 0.4) 40%,
+    rgba(44, 24, 16, 0.15) 70%,
+    transparent 100%
+  );
+  z-index: 1;
+  transition: opacity var(--transition);
+}
+
+.course-card:hover .course-overlay {
+  opacity: 0.75;
+}
+
+.course-card h3 {
+  position: relative;
+  z-index: 2;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #fffcf7;
+  line-height: 1.3;
+  margin: 0;
+  padding: 1.25rem;
+  text-align: center;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
 /* -- Note Page (Full-Page PDF Viewer) -- */
 .note-page {
   padding-top: 5rem;
@@ -1200,6 +1262,16 @@
 
   .note-page-body iframe {
     height: calc(100vh - 8rem);
+  }
+
+  .courses-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+
+  .course-card h3 {
+    font-size: 0.85rem;
+    padding: 1rem;
   }
 
   .footer {

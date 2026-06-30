@@ -51,6 +51,11 @@ const projectModules = import.meta.glob('./content/projects/*.json', {
   import: 'default',
 })
 
+const courseModules = import.meta.glob('./content/courses/*.json', {
+  eager: true,
+  import: 'default',
+})
+
 const notes = Object.entries(noteModules)
   .map(([path, data]) => ({
     ...data,
@@ -59,6 +64,13 @@ const notes = Object.entries(noteModules)
   .sort((a, b) => a.id - b.id)
 
 const projects = Object.entries(projectModules)
+  .map(([path, data]) => ({
+    ...data,
+    id: Number(path.match(/(\d+)\.json$/)?.[1] || 0),
+  }))
+  .sort((a, b) => a.id - b.id)
+
+const courses = Object.entries(courseModules)
   .map(([path, data]) => ({
     ...data,
     id: Number(path.match(/(\d+)\.json$/)?.[1] || 0),
@@ -79,9 +91,10 @@ function Navbar({ activeSection }) {
 
   const links = [
     { label: 'About', href: '#about' },
-    { label: 'Vault', href: '#vault' },
-    { label: 'Articles', href: '#articles' },
+    { label: 'Courses', href: '#courses' },
     { label: 'Projects', href: '#projects' },
+    { label: 'Articles', href: '#articles' },
+    { label: 'Vault', href: '#vault' },
   ]
 
   if (isNotePage) {
@@ -140,8 +153,6 @@ function NoteCard({ note }) {
   )
 }
 
-
-
 function ArticleCard({ article }) {
   return (
     <Link to={`/article/${article.id}`} className="article-card">
@@ -150,6 +161,33 @@ function ArticleCard({ article }) {
       <p className="article-excerpt">{article.excerpt}</p>
       <span className="article-tag">{article.tag}</span>
     </Link>
+  )
+}
+
+function getYoutubeThumb(url) {
+  try {
+    const u = new URL(url)
+    const vid = u.searchParams.get('v')
+    return vid ? `https://img.youtube.com/vi/${vid}/hqdefault.jpg` : null
+  } catch {
+    return null
+  }
+}
+
+function CourseCard({ course }) {
+  const thumb = getYoutubeThumb(course.url)
+
+  return (
+    <a
+      href={course.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="course-card"
+      style={thumb ? { backgroundImage: `url(${thumb})` } : undefined}
+    >
+      <span className="course-overlay" />
+      <h3>{course.title}</h3>
+    </a>
   )
 }
 
@@ -241,7 +279,7 @@ function HomePage() {
       { rootMargin: '-40% 0px -55% 0px' },
     )
 
-    const ids = ['about', 'vault', 'articles', 'projects']
+    const ids = ['about', 'courses', 'projects', 'articles', 'vault']
     for (const id of ids) {
       const el = document.getElementById(id)
       if (el) observer.observe(el)
@@ -317,21 +355,36 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="vault" className="section">
+      <section id="courses" className="section">
         <div className="section-header">
-          <span className="section-label">The Vault</span>
-          <h2 className="section-title">Handwritten Notes</h2>
+          <span className="section-label">Courses</span>
+          <h2 className="section-title">YouTube Lectures</h2>
           <p className="section-subtitle">
-            A curated collection of handwritten lecture notes — scroll horizontally to browse, click to preview.
+            Curated playlists covering engineering fundamentals — click any card to watch on YouTube.
           </p>
         </div>
         <div className="section-content">
-          <div className="vault-scroll">
-            <div className="vault-track">
-              {notes.map((note) => (
-                <NoteCard key={note.id} note={note} />
-              ))}
-            </div>
+          <div className="courses-grid">
+            {courses.map((c) => (
+              <CourseCard key={c.id} course={c} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section id="projects" className="section">
+        <div className="section-header">
+          <span className="section-label">Projects &amp; Research</span>
+          <h2 className="section-title">What I&rsquo;ve Built</h2>
+          <p className="section-subtitle">
+            Open-source projects and research papers — built with precision.
+          </p>
+        </div>
+        <div className="section-content">
+          <div className="bento-grid">
+            {projects.map((p) => (
+              <BentoItem key={p.id} project={p} />
+            ))}
           </div>
         </div>
       </section>
@@ -353,19 +406,21 @@ function HomePage() {
         </div>
       </section>
 
-      <section id="projects" className="section">
+      <section id="vault" className="section">
         <div className="section-header">
-          <span className="section-label">Projects &amp; Research</span>
-          <h2 className="section-title">What I&rsquo;ve Built</h2>
+          <span className="section-label">The Vault</span>
+          <h2 className="section-title">Handwritten Notes</h2>
           <p className="section-subtitle">
-            Open-source projects and research papers — built with precision.
+            A curated collection of handwritten lecture notes — scroll horizontally to browse, click to preview.
           </p>
         </div>
         <div className="section-content">
-          <div className="bento-grid">
-            {projects.map((p) => (
-              <BentoItem key={p.id} project={p} />
-            ))}
+          <div className="vault-scroll">
+            <div className="vault-track">
+              {notes.map((note) => (
+                <NoteCard key={note.id} note={note} />
+              ))}
+            </div>
           </div>
         </div>
       </section>
